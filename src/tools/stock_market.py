@@ -1,12 +1,13 @@
 """
-Stock market data tools for MCP server.
+Stock market tools for the MCP server.
+Historical prices, basic info, dividends, and adjust factors with clear options.
 """
 import logging
 from typing import List, Optional
 
 from mcp.server.fastmcp import FastMCP
 from src.data_source_interface import FinancialDataSource, NoDataFoundError, LoginError, DataSourceError
-from src.formatting.markdown_formatter import format_df_to_markdown
+from src.formatting.markdown_formatter import format_df_to_markdown, format_table_output
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,8 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
         frequency: str = "d",
         adjust_flag: str = "3",
         fields: Optional[List[str]] = None,
+        limit: int = 250,
+        format: str = "markdown",
     ) -> str:
         """
         Fetches historical K-line (OHLCV) data for a Chinese A-share stock.
@@ -52,6 +55,8 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
                          Defaults to '3'.
             fields: Optional list of specific data fields to retrieve (must be valid Baostock fields).
                     If None or empty, default fields will be used (e.g., date, code, open, high, low, close, volume, amount, pctChg).
+            limit: Max rows to return. Defaults to 250.
+            format: Output format: 'markdown' | 'json' | 'csv'. Defaults to 'markdown'.
 
         Returns:
             A Markdown formatted string containing the K-line data table, or an error message.
@@ -81,8 +86,9 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
             )
             # Format the result
             logger.info(
-                f"Successfully retrieved K-data for {code}, formatting to Markdown.")
-            return format_df_to_markdown(df)
+                f"Successfully retrieved K-data for {code}, formatting output.")
+            meta = {"code": code, "start_date": start_date, "end_date": end_date, "frequency": frequency, "adjust_flag": adjust_flag}
+            return format_table_output(df, format=format, max_rows=limit, meta=meta)
 
         except NoDataFoundError as e:
             logger.warning(f"NoDataFoundError for {code}: {e}")
@@ -103,7 +109,7 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
             return f"Error: An unexpected error occurred: {e}"
 
     @app.tool()
-    def get_stock_basic_info(code: str, fields: Optional[List[str]] = None) -> str:
+    def get_stock_basic_info(code: str, fields: Optional[List[str]] = None, format: str = "markdown") -> str:
         """
         Fetches basic information for a given Chinese A-share stock.
 
@@ -114,8 +120,7 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
                     If None or empty, returns all available basic info columns from Baostock.
 
         Returns:
-            A Markdown formatted string containing the basic stock information table,
-            or an error message.
+            Basic stock information in the requested format.
         """
         logger.info(
             f"Tool 'get_stock_basic_info' called for {code} (fields={fields})")
@@ -125,11 +130,11 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
             df = active_data_source.get_stock_basic_info(
                 code=code, fields=fields)
 
-            # Format the result (basic info usually small, use default truncation)
+            # Format the result (basic info usually small)
             logger.info(
-                f"Successfully retrieved basic info for {code}, formatting to Markdown.")
-            # Smaller limits for basic info
-            return format_df_to_markdown(df)
+                f"Successfully retrieved basic info for {code}, formatting output.")
+            meta = {"code": code}
+            return format_table_output(df, format=format, max_rows=df.shape[0] if df is not None else 0, meta=meta)
 
         except NoDataFoundError as e:
             logger.warning(f"NoDataFoundError for {code}: {e}")
@@ -149,7 +154,7 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
             return f"Error: An unexpected error occurred: {e}"
 
     @app.tool()
-    def get_dividend_data(code: str, year: str, year_type: str = "report") -> str:
+    def get_dividend_data(code: str, year: str, year_type: str = "report", limit: int = 250, format: str = "markdown") -> str:
         """
         Fetches dividend information for a given stock code and year.
 
@@ -162,8 +167,7 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
                        Defaults to 'report'.
 
         Returns:
-            A Markdown formatted string containing the dividend data table,
-            or an error message.
+            Dividend records table.
         """
         logger.info(
             f"Tool 'get_dividend_data' called for {code}, year={year}, year_type={year_type}")
@@ -180,7 +184,8 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
                 code=code, year=year, year_type=year_type)
             logger.info(
                 f"Successfully retrieved dividend data for {code}, year {year}.")
-            return format_df_to_markdown(df)
+            meta = {"code": code, "year": year, "year_type": year_type}
+            return format_table_output(df, format=format, max_rows=limit, meta=meta)
 
         except NoDataFoundError as e:
             logger.warning(f"NoDataFoundError for {code}, year {year}: {e}")
@@ -200,7 +205,7 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
             return f"Error: An unexpected error occurred: {e}"
 
     @app.tool()
-    def get_adjust_factor_data(code: str, start_date: str, end_date: str) -> str:
+    def get_adjust_factor_data(code: str, start_date: str, end_date: str, limit: int = 250, format: str = "markdown") -> str:
         """
         Fetches adjustment factor data for a given stock code and date range.
         Uses Baostock's "涨跌幅复权算法" factors. Useful for calculating adjusted prices.
@@ -211,8 +216,7 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
             end_date: End date in 'YYYY-MM-DD' format.
 
         Returns:
-            A Markdown formatted string containing the adjustment factor data table,
-            or an error message.
+            Adjustment factors table.
         """
         logger.info(
             f"Tool 'get_adjust_factor_data' called for {code} ({start_date} to {end_date})")
@@ -222,7 +226,8 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
                 code=code, start_date=start_date, end_date=end_date)
             logger.info(
                 f"Successfully retrieved adjustment factor data for {code}.")
-            return format_df_to_markdown(df)
+            meta = {"code": code, "start_date": start_date, "end_date": end_date}
+            return format_table_output(df, format=format, max_rows=limit, meta=meta)
 
         except NoDataFoundError as e:
             logger.warning(f"NoDataFoundError for {code}: {e}")

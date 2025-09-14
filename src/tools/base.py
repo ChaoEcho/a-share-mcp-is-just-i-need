@@ -1,12 +1,12 @@
 """
 Base utilities for MCP tools.
-Contains shared helper functions for calling data sources.
+Shared helpers for calling data sources with consistent formatting and errors.
 """
 import logging
 from typing import Callable, Optional
 import pandas as pd
 
-from src.formatting.markdown_formatter import format_df_to_markdown
+from src.formatting.markdown_formatter import format_df_to_markdown, format_table_output
 from src.data_source_interface import NoDataFoundError, LoginError, DataSourceError
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,10 @@ def call_financial_data_tool(
     data_type_name: str,
     code: str,
     year: str,
-    quarter: int
+    quarter: int,
+    *,
+    limit: int = 250,
+    format: str = "markdown",
 ) -> str:
     """
     Helper function to reduce repetition for financial data tools
@@ -49,8 +52,8 @@ def call_financial_data_tool(
         df = data_source_method(code=code, year=year, quarter=quarter)
         logger.info(
             f"Successfully retrieved {data_type_name} data for {code}, {year}Q{quarter}.")
-        # Use smaller limits for financial tables?
-        return format_df_to_markdown(df)
+        meta = {"code": code, "year": year, "quarter": quarter, "dataset": data_type_name}
+        return format_table_output(df, format=format, max_rows=limit, meta=meta)
 
     except NoDataFoundError as e:
         logger.warning(f"NoDataFoundError for {code}, {year}Q{quarter}: {e}")
@@ -76,6 +79,9 @@ def call_macro_data_tool(
     data_type_name: str,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
+    *,
+    limit: int = 250,
+    format: str = "markdown",
     **kwargs  # For extra params like year_type
 ) -> str:
     """
@@ -97,10 +103,10 @@ def call_macro_data_tool(
     logger.info(f"Tool '{tool_name}' called {date_range_log}{kwargs_log}")
     try:
         # Call the appropriate method on the active_data_source
-        df = data_source_method(start_date=start_date,
-                                end_date=end_date, **kwargs)
+        df = data_source_method(start_date=start_date, end_date=end_date, **kwargs)
         logger.info(f"Successfully retrieved {data_type_name} data.")
-        return format_df_to_markdown(df)
+        meta = {"dataset": data_type_name, "start_date": start_date, "end_date": end_date} | ({"extra": kwargs} if kwargs else {})
+        return format_table_output(df, format=format, max_rows=limit, meta=meta)
     except NoDataFoundError as e:
         logger.warning(f"NoDataFoundError: {e}")
         return f"Error: {e}"
@@ -122,7 +128,10 @@ def call_index_constituent_tool(
     tool_name: str,
     data_source_method: Callable,
     index_name: str,
-    date: Optional[str] = None
+    date: Optional[str] = None,
+    *,
+    limit: int = 250,
+    format: str = "markdown",
 ) -> str:
     """
     Helper function for index constituent tools
@@ -143,7 +152,8 @@ def call_index_constituent_tool(
         df = data_source_method(date=date)
         logger.info(
             f"Successfully retrieved {index_name} constituents for {date or 'latest'}.")
-        return format_df_to_markdown(df)
+        meta = {"index": index_name, "as_of": date or "latest"}
+        return format_table_output(df, format=format, max_rows=limit, meta=meta)
     except NoDataFoundError as e:
         logger.warning(f"NoDataFoundError: {e}")
         return f"Error: {e}"

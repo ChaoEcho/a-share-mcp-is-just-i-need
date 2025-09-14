@@ -3,12 +3,11 @@ Markdown formatting utilities for A-Share MCP Server.
 """
 import pandas as pd
 import logging
-from datetime import datetime, timedelta
+import json
 
 logger = logging.getLogger(__name__)
 
-# Configuration
-# Common number of trading days per year. Max rows to display in Markdown output
+# Configuration: Max rows to display in string outputs to protect context length
 MAX_MARKDOWN_ROWS = 250
 
 
@@ -22,44 +21,93 @@ def format_df_to_markdown(df: pd.DataFrame, max_rows: int = None) -> str:
     Returns:
         A markdown formatted string representation of the DataFrame
     """
-    if df.empty:
+    if df is None or df.empty:
         logger.warning("Attempted to format an empty DataFrame to Markdown.")
         return "(No data available to display)"
 
-    # Default max_rows to the configured limit if not provided
     if max_rows is None:
         max_rows = MAX_MARKDOWN_ROWS
-        logger.debug(f"max_rows defaulted to MAX_MARKDOWN_ROWS: {max_rows}")
 
-    original_rows = df.shape[0]  # Only need original_rows now
-    truncated = False
-    truncation_notes = []
-
-    # Determine the actual number of rows to display, capped by max_rows
+    original_rows = df.shape[0]
     rows_to_show = min(original_rows, max_rows)
-
-    # Always apply the row limit
     df_display = df.head(rows_to_show)
 
-    # Check if actual row truncation occurred (only if original_rows > rows_to_show)
-    if original_rows > rows_to_show:
-        truncation_notes.append(
-            f"rows truncated to the limit of {rows_to_show} (from {original_rows})")
-        truncated = True
+    truncated = original_rows > rows_to_show
 
     try:
         markdown_table = df_display.to_markdown(index=False)
     except Exception as e:
-        logger.error(
-            f"Error converting DataFrame to Markdown: {e}", exc_info=True)
+        logger.error("Error converting DataFrame to Markdown: %s", e, exc_info=True)
         return "Error: Could not format data into Markdown table."
 
     if truncated:
-        # Note: 'truncated' is now only True if rows were truncated
-        notes = "; ".join(truncation_notes)
-        logger.debug(
-            f"Markdown table generated with truncation notes: {notes}")
+        notes = f"rows truncated to {rows_to_show} from {original_rows}"
         return f"Note: Data truncated ({notes}).\n\n{markdown_table}"
-    else:
-        logger.debug("Markdown table generated without truncation.")
-        return markdown_table
+    return markdown_table
+
+
+def format_table_output(
+    df: pd.DataFrame,
+    format: str = "markdown",
+    max_rows: int | None = None,
+    meta: dict | None = None,
+) -> str:
+    """Formats a DataFrame into the requested string format with optional meta.
+
+    Args:
+        df: Data to format.
+        format: 'markdown' | 'json' | 'csv'. Defaults to 'markdown'.
+        max_rows: Optional max rows to include (defaults depend on formatters).
+        meta: Optional metadata dict to include (prepended for markdown, embedded for json).
+
+    Returns:
+        A string suitable for tool responses.
+    """
+    fmt = (format or "markdown").lower()
+
+    # Normalize row cap
+    if max_rows is None:
+        max_rows = MAX_MARKDOWN_ROWS if fmt == "markdown" else MAX_MARKDOWN_ROWS
+
+    total_rows = 0 if df is None else int(df.shape[0])
+    rows_to_show = 0 if df is None else min(total_rows, max_rows)
+    truncated = total_rows > rows_to_show
+    df_display = df.head(rows_to_show) if df is not None else pd.DataFrame()
+
+    if fmt == "markdown":
+        header = ""
+        if meta:
+            # Render a compact meta header
+            lines = ["Meta:"]
+            for k, v in meta.items():
+                lines.append(f"- {k}: {v}")
+            header = "\n".join(lines) + "\n\n"
+        return header + format_df_to_markdown(df_display, max_rows=max_rows)
+
+    if fmt == "csv":
+        try:
+            return df_display.to_csv(index=False)
+        except Exception as e:
+            logger.error("Error converting DataFrame to CSV: %s", e, exc_info=True)
+            return "Error: Could not format data into CSV."
+
+    if fmt == "json":
+        try:
+            payload = {
+                "data": [] if df_display is None else df_display.to_dict(orient="records"),
+                "meta": {
+                    **(meta or {}),
+                    "total_rows": total_rows,
+                    "returned_rows": rows_to_show,
+                    "truncated": truncated,
+                    "columns": [] if df_display is None else list(df_display.columns),
+                },
+            }
+            return json.dumps(payload, ensure_ascii=False)
+        except Exception as e:
+            logger.error("Error converting DataFrame to JSON: %s", e, exc_info=True)
+            return "Error: Could not format data into JSON."
+
+    # Fallback to markdown if unknown format
+    logger.warning("Unknown format '%s', falling back to markdown", fmt)
+    return format_df_to_markdown(df_display, max_rows=max_rows)

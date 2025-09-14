@@ -1,6 +1,6 @@
 """
-Macroeconomic data tools for MCP server.
-Contains tools for fetching interest rates, money supply data, and more.
+Macroeconomic tools for the MCP server.
+Fetch interest rates, money supply data, and more with consistent options.
 """
 import logging
 from typing import Optional
@@ -22,7 +22,7 @@ def register_macroeconomic_tools(app: FastMCP, active_data_source: FinancialData
     """
 
     @app.tool()
-    def get_deposit_rate_data(start_date: Optional[str] = None, end_date: Optional[str] = None) -> str:
+    def get_deposit_rate_data(start_date: Optional[str] = None, end_date: Optional[str] = None, limit: int = 250, format: str = "markdown") -> str:
         """
         Fetches benchmark deposit rates (活期, 定期) within a date range.
 
@@ -37,11 +37,12 @@ def register_macroeconomic_tools(app: FastMCP, active_data_source: FinancialData
             "get_deposit_rate_data",
             active_data_source.get_deposit_rate_data,
             "Deposit Rate",
-            start_date, end_date
+            start_date, end_date,
+            limit=limit, format=format
         )
 
     @app.tool()
-    def get_loan_rate_data(start_date: Optional[str] = None, end_date: Optional[str] = None) -> str:
+    def get_loan_rate_data(start_date: Optional[str] = None, end_date: Optional[str] = None, limit: int = 250, format: str = "markdown") -> str:
         """
         Fetches benchmark loan rates (贷款利率) within a date range.
 
@@ -56,11 +57,12 @@ def register_macroeconomic_tools(app: FastMCP, active_data_source: FinancialData
             "get_loan_rate_data",
             active_data_source.get_loan_rate_data,
             "Loan Rate",
-            start_date, end_date
+            start_date, end_date,
+            limit=limit, format=format
         )
 
     @app.tool()
-    def get_required_reserve_ratio_data(start_date: Optional[str] = None, end_date: Optional[str] = None, year_type: str = '0') -> str:
+    def get_required_reserve_ratio_data(start_date: Optional[str] = None, end_date: Optional[str] = None, year_type: str = '0', limit: int = 250, format: str = "markdown") -> str:
         """
         Fetches required reserve ratio data (存款准备金率) within a date range.
 
@@ -83,11 +85,12 @@ def register_macroeconomic_tools(app: FastMCP, active_data_source: FinancialData
             active_data_source.get_required_reserve_ratio_data,
             "Required Reserve Ratio",
             start_date, end_date,
+            limit=limit, format=format,
             yearType=year_type  # Pass the extra arg correctly named for Baostock
         )
 
     @app.tool()
-    def get_money_supply_data_month(start_date: Optional[str] = None, end_date: Optional[str] = None) -> str:
+    def get_money_supply_data_month(start_date: Optional[str] = None, end_date: Optional[str] = None, limit: int = 250, format: str = "markdown") -> str:
         """
         Fetches monthly money supply data (M0, M1, M2) within a date range.
 
@@ -103,11 +106,12 @@ def register_macroeconomic_tools(app: FastMCP, active_data_source: FinancialData
             "get_money_supply_data_month",
             active_data_source.get_money_supply_data_month,
             "Monthly Money Supply",
-            start_date, end_date
+            start_date, end_date,
+            limit=limit, format=format
         )
 
     @app.tool()
-    def get_money_supply_data_year(start_date: Optional[str] = None, end_date: Optional[str] = None) -> str:
+    def get_money_supply_data_year(start_date: Optional[str] = None, end_date: Optional[str] = None, limit: int = 250, format: str = "markdown") -> str:
         """
         Fetches yearly money supply data (M0, M1, M2 - year end balance) within a date range.
 
@@ -123,11 +127,12 @@ def register_macroeconomic_tools(app: FastMCP, active_data_source: FinancialData
             "get_money_supply_data_year",
             active_data_source.get_money_supply_data_year,
             "Yearly Money Supply",
-            start_date, end_date
+            start_date, end_date,
+            limit=limit, format=format
         )
 
     @app.tool()
-    def get_shibor_data(start_date: Optional[str] = None, end_date: Optional[str] = None) -> str:
+    def get_shibor_data(start_date: Optional[str] = None, end_date: Optional[str] = None, limit: int = 250, format: str = "markdown") -> str:
         """
         Fetches SHIBOR (Shanghai Interbank Offered Rate) data within a date range.
 
@@ -142,5 +147,6 @@ def register_macroeconomic_tools(app: FastMCP, active_data_source: FinancialData
             "get_shibor_data",
             active_data_source.get_shibor_data,
             "SHIBOR",
-            start_date, end_date
+            start_date, end_date,
+            limit=limit, format=format
         )

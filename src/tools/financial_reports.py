@@ -1,5 +1,6 @@
 """
-Financial report related tools for MCP server.
+Financial report tools for the MCP server.
+Clear, strongly-typed parameters; consistent output options.
 """
 import logging
 from typing import List, Optional
@@ -21,9 +22,9 @@ def register_financial_report_tools(app: FastMCP, active_data_source: FinancialD
     """
 
     @app.tool()
-    def get_profit_data(code: str, year: str, quarter: int) -> str:
+    def get_profit_data(code: str, year: str, quarter: int, limit: int = 250, format: str = "markdown") -> str:
         """
-        Fetches quarterly profitability data (e.g., ROE, net profit margin) for a stock.
+        Get quarterly profitability data (e.g., ROE, net profit margin) for a stock.
 
         Args:
             code: The stock code (e.g., 'sh.600000').
@@ -31,19 +32,20 @@ def register_financial_report_tools(app: FastMCP, active_data_source: FinancialD
             quarter: The quarter (1, 2, 3, or 4).
 
         Returns:
-            Markdown table with profitability data or an error message.
+            Profitability metrics table.
         """
         return call_financial_data_tool(
             "get_profit_data",
             active_data_source.get_profit_data,
             "Profitability",
-            code, year, quarter
+            code, year, quarter,
+            limit=limit, format=format
         )
 
     @app.tool()
-    def get_operation_data(code: str, year: str, quarter: int) -> str:
+    def get_operation_data(code: str, year: str, quarter: int, limit: int = 250, format: str = "markdown") -> str:
         """
-        Fetches quarterly operation capability data (e.g., turnover ratios) for a stock.
+        Get quarterly operation capability data (e.g., turnover ratios) for a stock.
 
         Args:
             code: The stock code (e.g., 'sh.600000').
@@ -51,19 +53,20 @@ def register_financial_report_tools(app: FastMCP, active_data_source: FinancialD
             quarter: The quarter (1, 2, 3, or 4).
 
         Returns:
-            Markdown table with operation capability data or an error message.
+            Operation capability metrics table.
         """
         return call_financial_data_tool(
             "get_operation_data",
             active_data_source.get_operation_data,
             "Operation Capability",
-            code, year, quarter
+            code, year, quarter,
+            limit=limit, format=format
         )
 
     @app.tool()
-    def get_growth_data(code: str, year: str, quarter: int) -> str:
+    def get_growth_data(code: str, year: str, quarter: int, limit: int = 250, format: str = "markdown") -> str:
         """
-        Fetches quarterly growth capability data (e.g., YOY growth rates) for a stock.
+        Get quarterly growth capability data (e.g., YOY growth rates) for a stock.
 
         Args:
             code: The stock code (e.g., 'sh.600000').
@@ -71,19 +74,20 @@ def register_financial_report_tools(app: FastMCP, active_data_source: FinancialD
             quarter: The quarter (1, 2, 3, or 4).
 
         Returns:
-            Markdown table with growth capability data or an error message.
+            Growth capability metrics table.
         """
         return call_financial_data_tool(
             "get_growth_data",
             active_data_source.get_growth_data,
             "Growth Capability",
-            code, year, quarter
+            code, year, quarter,
+            limit=limit, format=format
         )
 
     @app.tool()
-    def get_balance_data(code: str, year: str, quarter: int) -> str:
+    def get_balance_data(code: str, year: str, quarter: int, limit: int = 250, format: str = "markdown") -> str:
         """
-        Fetches quarterly balance sheet / solvency data (e.g., current ratio, debt ratio) for a stock.
+        Get quarterly balance sheet / solvency data (e.g., current ratio, debt ratio) for a stock.
 
         Args:
             code: The stock code (e.g., 'sh.600000').
@@ -91,19 +95,20 @@ def register_financial_report_tools(app: FastMCP, active_data_source: FinancialD
             quarter: The quarter (1, 2, 3, or 4).
 
         Returns:
-            Markdown table with balance sheet data or an error message.
+            Balance sheet metrics table.
         """
         return call_financial_data_tool(
             "get_balance_data",
             active_data_source.get_balance_data,
             "Balance Sheet",
-            code, year, quarter
+            code, year, quarter,
+            limit=limit, format=format
         )
 
     @app.tool()
-    def get_cash_flow_data(code: str, year: str, quarter: int) -> str:
+    def get_cash_flow_data(code: str, year: str, quarter: int, limit: int = 250, format: str = "markdown") -> str:
         """
-        Fetches quarterly cash flow data (e.g., CFO/Operating Revenue ratio) for a stock.
+        Get quarterly cash flow data (e.g., CFO/Operating Revenue ratio) for a stock.
 
         Args:
             code: The stock code (e.g., 'sh.600000').
@@ -111,19 +116,20 @@ def register_financial_report_tools(app: FastMCP, active_data_source: FinancialD
             quarter: The quarter (1, 2, 3, or 4).
 
         Returns:
-            Markdown table with cash flow data or an error message.
+            Cash flow metrics table.
         """
         return call_financial_data_tool(
             "get_cash_flow_data",
             active_data_source.get_cash_flow_data,
             "Cash Flow",
-            code, year, quarter
+            code, year, quarter,
+            limit=limit, format=format
         )
 
     @app.tool()
-    def get_dupont_data(code: str, year: str, quarter: int) -> str:
+    def get_dupont_data(code: str, year: str, quarter: int, limit: int = 250, format: str = "markdown") -> str:
         """
-        Fetches quarterly DuPont analysis data (ROE decomposition) for a stock.
+        Get quarterly DuPont analysis data (ROE decomposition) for a stock.
 
         Args:
             code: The stock code (e.g., 'sh.600000').
@@ -131,17 +137,18 @@ def register_financial_report_tools(app: FastMCP, active_data_source: FinancialD
             quarter: The quarter (1, 2, 3, or 4).
 
         Returns:
-            Markdown table with DuPont analysis data or an error message.
+            DuPont analysis metrics table.
         """
         return call_financial_data_tool(
             "get_dupont_data",
             active_data_source.get_dupont_data,
             "DuPont Analysis",
-            code, year, quarter
+            code, year, quarter,
+            limit=limit, format=format
         )
 
     @app.tool()
-    def get_performance_express_report(code: str, start_date: str, end_date: str) -> str:
+    def get_performance_express_report(code: str, start_date: str, end_date: str, limit: int = 250, format: str = "markdown") -> str:
         """
         Fetches performance express reports (业绩快报) for a stock within a date range.
         Note: Companies are not required to publish these except in specific cases.
@@ -162,8 +169,9 @@ def register_financial_report_tools(app: FastMCP, active_data_source: FinancialD
                 code=code, start_date=start_date, end_date=end_date)
             logger.info(
                 f"Successfully retrieved performance express reports for {code}.")
-            from src.formatting.markdown_formatter import format_df_to_markdown
-            return format_df_to_markdown(df)
+            from src.formatting.markdown_formatter import format_table_output
+            meta = {"code": code, "start_date": start_date, "end_date": end_date, "dataset": "performance_express"}
+            return format_table_output(df, format=format, max_rows=limit, meta=meta)
 
         except Exception as e:
             logger.exception(
@@ -171,7 +179,7 @@ def register_financial_report_tools(app: FastMCP, active_data_source: FinancialD
             return f"Error: An unexpected error occurred: {e}"
 
     @app.tool()
-    def get_forecast_report(code: str, start_date: str, end_date: str) -> str:
+    def get_forecast_report(code: str, start_date: str, end_date: str, limit: int = 250, format: str = "markdown") -> str:
         """
         Fetches performance forecast reports (业绩预告) for a stock within a date range.
         Note: Companies are not required to publish these except in specific cases.
@@ -192,8 +200,9 @@ def register_financial_report_tools(app: FastMCP, active_data_source: FinancialD
                 code=code, start_date=start_date, end_date=end_date)
             logger.info(
                 f"Successfully retrieved performance forecast reports for {code}.")
-            from src.formatting.markdown_formatter import format_df_to_markdown
-            return format_df_to_markdown(df)
+            from src.formatting.markdown_formatter import format_table_output
+            meta = {"code": code, "start_date": start_date, "end_date": end_date, "dataset": "forecast"}
+            return format_table_output(df, format=format, max_rows=limit, meta=meta)
 
         except Exception as e:
             logger.exception(
