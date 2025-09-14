@@ -120,7 +120,4 @@ class FinancialDataSource(ABC):
         """Fetches yearly money supply data (M0, M1, M2 - year end balance)."""
         pass
 
-    @abstractmethod
-    def get_shibor_data(self, start_date: Optional[str] = None, end_date: Optional[str] = None) -> pd.DataFrame:
-        """Fetches SHIBOR (Shanghai Interbank Offered Rate) data."""
-        pass
+    # Note: SHIBOR is not implemented in current Baostock bindings; no abstract method here.

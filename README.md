@@ -265,7 +265,7 @@ uv sync
             <li><code>get_required_reserve_ratio_data</code></li>
             <li><code>get_money_supply_data_month</code></li>
             <li><code>get_money_supply_data_year</code></li>
-            <li><code>get_shibor_data</code></li>
+            <li><code>get__data</code></li>
           </ul>
         </td>
         <td>
@@ -321,7 +321,7 @@ ormalize_stock_code（统一为 sh.600000）、list_tool_constants（枚举合�
 - 财报：所有季度类工具 + get_performance_express_report、get_forecast_report
 - 指数：get_stock_industry、get_sz50_stocks、get_hs300_stocks、get_zz500_stocks
 - 市场：get_trade_dates、get_all_stock
-- 宏观：存款/贷款利率、存款准备金率、货币供应量（月/年）、SHIBOR
+- 宏观：存款/贷款利率、存款准备金率、货币供应量（月/年）、
 
 ### 兼容性与示例
 - 向后兼容：工具名与必填参数未变；新增参数均可选；默认输出仍为 Markdown。

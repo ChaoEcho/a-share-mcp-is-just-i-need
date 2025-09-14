@@ -684,6 +684,4 @@ class BaostockDataSource(FinancialDataSource):
         # Baostock expects YYYY format for dates here
         return _fetch_macro_data(bs.query_money_supply_data_year, "Yearly Money Supply", start_date, end_date)
 
-    def get_shibor_data(self, start_date: Optional[str] = None, end_date: Optional[str] = None) -> pd.DataFrame:
-        """Fetches SHIBOR (Shanghai Interbank Offered Rate) data using Baostock."""
-        return _fetch_macro_data(bs.query_shibor_data, "SHIBOR", start_date, end_date)
+    # Note: SHIBOR is not available in current Baostock API bindings used; not implemented.

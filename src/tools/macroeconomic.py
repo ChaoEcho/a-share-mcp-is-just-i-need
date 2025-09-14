@@ -131,22 +131,4 @@ def register_macroeconomic_tools(app: FastMCP, active_data_source: FinancialData
             limit=limit, format=format
         )
 
-    @app.tool()
-    def get_shibor_data(start_date: Optional[str] = None, end_date: Optional[str] = None, limit: int = 250, format: str = "markdown") -> str:
-        """
-        Fetches SHIBOR (Shanghai Interbank Offered Rate) data within a date range.
-
-        Args:
-            start_date: Optional. Start date in 'YYYY-MM-DD' format.
-            end_date: Optional. End date in 'YYYY-MM-DD' format.
-
-        Returns:
-            Markdown table with SHIBOR data or an error message.
-        """
-        return call_macro_data_tool(
-            "get_shibor_data",
-            active_data_source.get_shibor_data,
-            "SHIBOR",
-            start_date, end_date,
-            limit=limit, format=format
-        )
+    # Note: SHIBOR 查询未在当前 baostock 绑定中提供，对应工具不实现。
