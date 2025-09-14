@@ -12,6 +12,7 @@
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,15,20,24&height=200&section=header&text=A%20股%20MCP&fontSize=80&fontAlignY=35&desc=基于%20Model%20Context%20Protocol%20(MCP)&descAlignY=60&animation=fadeIn" />
 
 </div>
+A股mcp。
 
 本项目是一个基于专注于 A 股市场的 MCP 服务器，它提供股票基本信息、历史 K 线数据、财务指标、宏观经济数据等多种查询功能，理论上来说，可以回答有关 A 股市场的任何问题，无论是针对大盘还是特定股票。
 
@@ -288,26 +289,6 @@ uv sync
 如果这个项目对你有帮助，欢迎请我喝杯咖啡 ❤️
 
 <img src="resource/img/ali.png" alt="支付宝收款码" width="300"/>
-
-### 🌟 加入我们的社区
-
-=======
-
-同时也欢迎关注我们的公众号【空指针指向量化 Agent】，获取更多量化投资和 AI 智能交易相关的干货内容！ 🚀
-
-<div style="display: flex; justify-content: space-between;">
-    <div style="text-align: center; margin-right: 20px;">
-        <p>关注公众号【空指针指向了量化 Agent】，获取更多量化投资和 AI 智能交易相关的干货内容！
-        <img src="resource/img/gzh_code.jpg" alt="公众号二维码" width="300"/>
-    </div>
-</div>
-
-> 另外，诚挚邀请各位加入我的知识星球（一顿饭钱：99¥）
-
-> （微信号: PareidoliaX，加微信后，我拉你进星球。该微信只做邀请用途，不做任何私人回复。非加星球请勿扰哈。），
-
-> 星球中还有更多我个人分享的资料和对该项目的解析。
-> 另外，星球会提前更新代码，抢先体验不容错过。
 
 ## 许可证
 
