@@ -297,3 +297,41 @@ uv sync
 <div align="center">
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,15,20,24&section=footer&height=100&animation=fadeIn" />
 </div>
+
+## 本次更新概览（2025-09）
+
+本次更新围绕“为代理编写高效工具”的实践进行，重点提升工具可发现性、可组合性与上下文效率。
+
+### 优化
+- 统一输出：新增可选参数 limit（默认 250）与 ormat（markdown|json|csv），默认保持 Markdown 兼容。
+- 丰富上下文：在返回中附带 meta（查询参数、as_of、返回/总行数、是否截断、列信息）。
+- 新增通用格式化器：ormat_table_output(df, format, max_rows, meta)，支持 JSON { data, meta }、CSV 及带 Meta 摘要的 Markdown。
+- 工具封装统一化：	ools/base.py 的调用助手均支持 limit/format，输出行为一致。
+
+### 新增工具
+- 指数/行业：get_index_constituents、list_industries、get_industry_members
+- 市场概览：search_stocks（按代码子串检索）、get_suspensions（停牌列表）
+- 日期工具：is_trading_day、previous_trading_day、
+ext_trading_day
+- 帮助工具：
+ormalize_stock_code（统一为 sh.600000）、list_tool_constants（枚举合法取值）
+
+### 已改造工具（新增 limit/format）
+- 股票：get_historical_k_data、get_stock_basic_info、get_dividend_data、get_adjust_factor_data
+- 财报：所有季度类工具 + get_performance_express_report、get_forecast_report
+- 指数：get_stock_industry、get_sz50_stocks、get_hs300_stocks、get_zz500_stocks
+- 市场：get_trade_dates、get_all_stock
+- 宏观：存款/贷款利率、存款准备金率、货币供应量（月/年）、SHIBOR
+
+### 兼容性与示例
+- 向后兼容：工具名与必填参数未变；新增参数均可选；默认输出仍为 Markdown。
+- 示例：
+
+`	ext
+get_index_constituents(index='hs300', format='json', limit=100)
+search_stocks(keyword='600', date='2025-01-10', limit=20)
+get_historical_k_data(code='sh.600000', start_date='2024-01-01', end_date='2024-06-30', frequency='d', format='csv', limit=200)
+previous_trading_day('2025-01-04')
+normalize_stock_code('000001.SZ')  # -> 'sz.000001'
+`
+
