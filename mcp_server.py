@@ -25,6 +25,7 @@ from src.tools.helpers import register_helpers_tools
 from src.tools.etf_market import register_etf_market_tools
 from src.tools.etf_holdings import register_etf_holdings_tools
 from src.tools.etf_analysis import register_etf_analysis_tools
+from src.tools.realtime import register_realtime_tools
 
 # --- Logging Setup ---
 # Call the setup function from utils
@@ -67,6 +68,7 @@ register_macroeconomic_tools(app, active_data_source)
 register_date_utils_tools(app, active_data_source)
 register_analysis_tools(app, active_data_source)
 register_helpers_tools(app)
+register_realtime_tools(app)
 
 # ETF相关工具
 register_etf_market_tools(app, active_etf_data_source)
@@ -76,6 +78,7 @@ register_etf_analysis_tools(app, active_etf_data_source)
 # --- Main Execution Block ---
 if __name__ == "__main__":
     logger.info(
-        f"Starting A-Share MCP Server with ETF support via stdio... Today is {current_date}")
+        f"Starting A-Share MCP Server with ETF support via stdio... Today is {current_date}"
+    )
     # Run the server using stdio transport, suitable for MCP Hosts like Claude Desktop
-    app.run(transport='stdio')
+    app.run(transport="stdio")
